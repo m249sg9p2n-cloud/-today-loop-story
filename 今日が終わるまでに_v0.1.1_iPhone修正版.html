@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>今日が終わるまでに。</title>
+<style>
+:root{
+  --bg:#0d1016; --panel:#151922; --panel2:#1c2230; --text:#f4f7fb; --muted:#a8b0be; --line:#2a3140;
+  --accent:#e8edf7; --danger:#ffb4b4; --gold:#e9d49a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;min-height:100%}
+body{display:flex;justify-content:center}
+.app{width:100%;max-width:520px;min-height:100vh;padding:env(safe-area-inset-top) 16px calc(20px + env(safe-area-inset-bottom));}
+.hidden{display:none!important}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:88vh;text-align:center}
+.title{font-family:serif;font-size:34px;letter-spacing:.08em;margin:0 0 8px;font-weight:700}
+.subtitle{color:var(--muted);font-size:12px;letter-spacing:.18em;margin-bottom:34px}
+.count{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--gold);margin-bottom:24px}
+.menu{width:100%;display:grid;gap:12px}
+button{font:inherit}
+.btn{width:100%;min-height:52px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;padding:13px 16px;font-size:16px;text-align:left;transition:.15s ease}
+.btn:active{transform:scale(.99);background:var(--panel2)}
+.btn.primary{text-align:center;font-weight:700;background:var(--accent);color:#10131a;border-color:transparent}
+.btn.ghost{text-align:center;color:var(--muted)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 0 14px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.topbar .time{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700}
+.topbar .place{color:var(--muted);font-size:13px}
+.story{background:linear-gradient(180deg,var(--panel),#12161e);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;min-height:240px;display:flex;flex-direction:column;justify-content:flex-end}
+.story p{margin:.55em 0;line-height:1.9;font-size:16px}
+.story .em{font-size:22px;font-weight:800;letter-spacing:.08em}
+.choices{display:grid;gap:10px}
+.endcard{min-height:86vh;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.endno{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;color:var(--muted)}
+.endtitle{font-family:serif;font-size:34px;margin:12px 0 10px}
+.endrarity{font-size:12px;letter-spacing:.22em;color:var(--gold);margin-bottom:26px}
+.enddesc{line-height:1.9;color:#d9dee8;margin:0 auto 28px;max-width:420px}
+.newbadge{display:inline-block;margin:0 auto 18px;padding:6px 10px;border:1px solid var(--gold);color:var(--gold);border-radius:999px;font-size:12px}
+.collectionHead{display:flex;justify-content:space-between;align-items:end;margin-bottom:14px}
+.collectionHead h2{margin:0;font-family:serif}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.endcell{aspect-ratio:1/1;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:8px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}
+.endcell.got{border-color:#667085;background:#1b2230}
+.endcell .num{font-size:11px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.endcell .name{font-size:11px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.detail{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;line-height:1.7}
+.small{font-size:12px;color:var(--muted)}
+.memoryList{display:grid;gap:10px}
+.memory{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.memory b{display:block;margin-bottom:4px}
+.notice{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+@media (max-width:360px){.title{font-size:29px}.grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<main class="app">
+  <section id="screen-title" class="center">
+    <h1 class="title">今日が終わるまでに。</h1>
+    <div class="subtitle">CHOICE LOOP STORY</div>
+    <div id="title-count" class="count">ENDING COLLECTION 0 / 100</div>
+    <div class="menu">
+      <button id="btn-start" class="btn primary" type="button">はじめる</button>
+      <button id="btn-collection" class="btn" type="button">エンディング図鑑</button>
+      <button id="btn-memory" class="btn" type="button">記憶</button>
+      <button id="btn-reset" class="btn ghost" type="button">セーブデータを初期化</button>
+    </div>
+    <div class="notice">試作版 v0.1｜END001〜010を実装・100枠図鑑対応</div>
+  </section>
+
+  <section id="screen-story" class="hidden">
+    <div class="topbar"><div id="story-time" class="time">7:00</div><div id="story-place" class="place">自室</div></div>
+    <div id="story-box" class="story"></div>
+    <div id="choices" class="choices"></div>
+  </section>
+
+  <section id="screen-end" class="hidden endcard">
+    <div id="end-new" class="newbadge hidden">NEW ENDING</div>
+    <div id="end-no" class="endno"></div>
+    <div id="end-title" class="endtitle"></div>
+    <div id="end-rarity" class="endrarity"></div>
+    <div id="end-desc" class="enddesc"></div>
+    <div class="menu">
+      <button id="btn-nextloop" class="btn primary" type="button">次の朝へ</button>
+      <button id="btn-endcollection" class="btn" type="button">図鑑を見る</button>
+      <button id="btn-endtitle" class="btn ghost" type="button">タイトルへ</button>
+    </div>
+  </section>
+
+  <section id="screen-collection" class="hidden">
+    <div class="collectionHead"><h2>ENDING COLLECTION</h2><div id="collection-count" class="count" style="margin:0"></div></div>
+    <div id="ending-grid" class="grid"></div>
+    <div id="ending-detail" class="detail small">取得したエンディングをタップすると詳細を表示します。</div>
+    <div class="menu" style="margin-top:14px"><button id="btn-colback" class="btn ghost" type="button">戻る</button></div>
+  </section>
+
+  <section id="screen-memory" class="hidden">
+    <div class="collectionHead"><h2>記憶</h2><div class="small">周回で残るもの</div></div>
+    <div id="memory-list" class="memoryList"></div>
+    <div class="menu" style="margin-top:14px"><button id="btn-memback" class="btn ghost" type="button">戻る</button></div>
+  </section>
+</main>
+<script>
+(()=>{
+const SAVE_KEY='kyouga_owarumadeni_v01';
+const endings={
+  1:{title:'いつも通りの一日',rarity:'COMMON',desc:'普通に起き、普通に出かけ、普通に帰宅した。何も起きなかった。それが、少しだけ不思議だった。'},
+  2:{title:'あと5分だけ……',rarity:'COMMON',desc:'あと5分。その言葉を何度繰り返したのか。目を開けた頃には、窓の外が赤く染まっていた。'},
+  3:{title:'無断欠勤',rarity:'COMMON',desc:'今日くらい、全部放り出してもいいと思った。夜、スマホには大量の着信が残っていた。'},
+  4:{title:'一攫千金',rarity:'RARE',desc:'ありえないほど勝った。これで人生が変わる——そう思った。けれど、明日の朝にはきっと。'},
+  5:{title:'全部なくなった',rarity:'COMMON',desc:'増えるはずだった。取り返せるはずだった。気づけば残っていたのは、帰り道だけだった。'},
+  6:{title:'知らない女の子',rarity:'RARE',desc:'「明日のあなたを知ってる人。」知らない声は、それだけ言って電話を切った。'},
+  7:{title:'事故',rarity:'COMMON',desc:'青信号。ブレーキ音。そこで今日の記憶は途切れた。'},
+  8:{title:'命の恩人',rarity:'EPIC',desc:'何が起きるか、なぜか分かっていた。誰かを止めた直後、目の前を車が駆け抜けた。'},
+  9:{title:'大遅刻',rarity:'COMMON',desc:'全力で急いだ。それでも、到着した頃には午前がほとんど終わっていた。'},
+ 10:{title:'今日は休みます',rarity:'COMMON',desc:'きちんと連絡して休んだ。何も起きない一日。そんな日も悪くない。'}
+};
+const memoryDefs={
+  accident:{title:'事故の記憶',desc:'あの交差点で何が起きるか、ぼんやり覚えている。',if:s=>s.got.includes(7)},
+  caller:{title:'知らない声',desc:'「明日のあなたを知ってる人。」という言葉が耳に残っている。',if:s=>s.got.includes(6)},
+  gambler:{title:'勝負の結末',desc:'勝っても負けても、0時を越えれば残らない気がする。',if:s=>s.got.includes(4)||s.got.includes(5)},
+  loopHint:{title:'小さな違和感',desc:'同じ朝を前にも迎えたような気がする。',if:s=>s.got.length>=5}
+};
+let state=load();
+let returnScreen='title';
+function blankState(){return {got:[],runs:0,current:null};}
+function load(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return x&&Array.isArray(x.got)?x:blankState()}catch(e){return blankState()}}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(e){}updateCounts();}
+function show(id){document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));document.getElementById('screen-'+id).classList.remove('hidden');window.scrollTo(0,0)}
+function updateCounts(){const n=state.got.length;document.getElementById('title-count').textContent=`ENDING COLLECTION ${n} / 100`;document.getElementById('collection-count').textContent=`${n} / 100`}
+function p(html){return `<p>${html}</p>`}
+const scenes={
+  s001(){
+    const choices=[c('起きる','s010'),c('あと5分寝る','s020'),c('スマホを見る','s030')];
+    if(state.got.includes(7)) choices.push(c('今日は少し嫌な予感がする','s011'));
+    if(state.got.length>=5) choices.push(c('……この朝、前にも？','s012'));
+    return scene('7:00','自室',p('ピピピピ——。')+p('目覚ましの音で目を覚ました。カーテンの隙間から朝の光が差し込んでいる。')+p('今日も、いつもと変わらない一日が始まる。'),choices)
+  },
+  s010(){return scene('7:15','自室',p('顔を洗い、着替える。')+p('さて、今日はどうしよう。'),[c('仕事へ行く','s100'),c('今日は休む','s120'),c('少し寄り道してから出る','s400')])},
+  s011(){return scene('7:04','自室',p('胸の奥がざわつく。理由は分からない。')+p('けれど、いつもの道だけは避けた方がいい気がした。'),[c('気のせいだ。普通に出る','s100'),c('今日は別の道で行く','s106')])},
+  s012(){return scene('7:01','自室',p('目覚ましの音。カーテンの光。スマホの位置。')+p('全部、知っている気がする。'),[c('考えるのをやめる','s010'),c('スマホを見る','s030')])},
+  s020(){return scene('7:10','自室',p('まだ眠い。')+p('あと少しだけなら問題ないだろう。'),[c('起きる','s010'),c('もう5分','s021')])},
+  s021(){return scene('8:03','自室',p('……5分？')+p('<span class="em">8:03</span>'),[c('飛び起きる','s022'),c('もうどうでもいい','e2')])},
+  s022(){return scene('8:07','自室',p('完全に遅刻だ。急げば、まだ午前中には間に合う。'),[c('とにかく仕事へ向かう','e9'),c('もう休むと連絡する','e10')])},
+  s030(){
+    const ch=[c('友人からのメッセージを見る','s031'),c('ニュースを見る','s032'),c('知らない番号の着信に出る','e6'),c('着信を無視する','s033')];
+    return scene('7:02','自室',p('画面にはいくつか通知が並んでいる。')+p('その中に、見覚えのない番号からの着信があった。'),ch)
+  },
+  s031(){return scene('7:05','自室',p('「今日ヒマ？」')+p('友人から短いメッセージ。'),[c('今日は仕事だと返す','s010'),c('休むことにして遊ぶ','e3')])},
+  s032(){return scene('7:06','自室',p('ニュースはいつも通り。事故、天気、経済。')+p('なぜか、交差点の事故の記事だけが妙に目についた。'),[c('気にせず支度する','s010'),c('今日は休む','s120')])},
+  s033(){return scene('7:03','自室',p('着信が止まる。')+p('数秒後——また同じ番号から鳴った。'),[c('今度は出る','e6'),c('電源を切る','s010')])},
+  s100(){
+    const ch=[c('いつもの道を行く','s101'),c('駅前を通る','s105')];
+    if(state.got.includes(7)) ch.push(c('今日は別の道を行く','s106'));
+    if(state.got.includes(7)) ch.push(c('事故が起きる場所へ先回りする','s107'));
+    return scene('8:05','通勤路',p('朝の街はいつも通り動いている。')+p('いつもの交差点が見えてきた。'),ch)
+  },
+  s101(){return scene('8:12','交差点',p('信号が青に変わる。')+p('一歩、前に出た。'),[c('渡る','e7')])},
+  s105(){return scene('8:18','駅前',p('少し遠回りになった。')+p('今日は何事もなく職場へ着けそうだ。'),[c('そのまま仕事へ','s130')])},
+  s106(){return scene('8:20','裏道',p('なぜか今日は、この道を選んだ。')+p('少し遅れたが、無事に職場へ着いた。'),[c('仕事をする','s130')])},
+  s107(){return scene('8:10','交差点',p('理由は説明できない。')+p('でも、ここで何かが起きる。そんな確信がある。'),[c('周囲の人を止める','e8'),c('自分の勘を疑う','e7')])},
+  s120(){return scene('7:30','自室',p('今日は休むことにした。')+p('予定のない一日が、急に広く感じる。'),[c('正式に休むと連絡する','e10'),c('連絡せずそのまま休む','e3'),c('外へ遊びに行く','s400')])},
+  s130(){return scene('18:00','職場',p('特に変わったこともなく、一日が終わった。')+p('帰宅する頃には、もう空が暗い。'),[c('まっすぐ帰って寝る','e1'),c('少し遊んで帰る','s400')])},
+  s400(){return scene('10:30','街',p('予定を外れて街へ出た。')+p('こういう日は、少しだけ何かが起こりそうな気がする。'),[c('ゲームセンターへ','s401'),c('勝負事を少しだけ','s420'),c('食べ歩きする','s430'),c('結局帰る','e1')])},
+  s401(){return scene('15:20','ゲームセンター',p('一回だけのつもりだった。')+p('気づけば何時間も経っている。'),[c('まだ遊ぶ','e3'),c('帰る','e1')])},
+  s420(){return scene('14:00','街',p('最初の勝負は、驚くほど上手くいった。')+p('手元には、朝よりずっと多いお金がある。'),[c('勝っているうちに帰る','e4'),c('もっと勝てる','s421')])},
+  s421(){return scene('18:40','街',p('さっきまであったはずのものが、もうない。')+p('取り返そうとするほど、さらに遠ざかっていった。'),[c('最後まで勝負する','e5')])},
+  s430(){return scene('20:10','街',p('朝から気になる店を片っ端から回った。')+p('もう何も入らない。'),[c('それでもデザート','e3'),c('帰宅する','e1')])}
+};
+function c(label,next){return {label,next}}
+function scene(time,place,html,choices){return {time,place,html,choices}}
+function renderScene(id){state.current=id;save();const fn=scenes[id];if(!fn){goTitle();return}const s=fn();document.getElementById('story-time').textContent=s.time;document.getElementById('story-place').textContent=s.place;document.getElementById('story-box').innerHTML=s.html;const box=document.getElementById('choices');box.innerHTML='';s.choices.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=o.label;b.addEventListener('click',()=>{if(o.next.startsWith('e')) finish(Number(o.next.slice(1)));else renderScene(o.next)});box.appendChild(b)});show('story')}
+function finish(n){const data=endings[n];if(!data)return;const isNew=!state.got.includes(n);if(isNew){state.got.push(n);state.got.sort((a,b)=>a-b)}state.current=null;save();document.getElementById('end-new').classList.toggle('hidden',!isNew);document.getElementById('end-no').textContent='END '+String(n).padStart(3,'0');document.getElementById('end-title').textContent=data.title;document.getElementById('end-rarity').textContent=data.rarity;document.getElementById('end-desc').textContent=data.desc;show('end')}
+function startLoop(){state.runs++;state.current='s001';save();renderScene('s001')}
+function goTitle(){state.current=null;save();show('title')}
+function renderCollection(){const grid=document.getElementById('ending-grid');grid.innerHTML='';for(let i=1;i<=100;i++){const got=state.got.includes(i);const d=endings[i];const cell=document.createElement('button');cell.type='button';cell.className='endcell '+(got?'got':'');cell.innerHTML=`<span class="num">END ${String(i).padStart(3,'0')}</span><span class="name">${got&&d?d.title:'？？？？？'}</span>`;cell.addEventListener('click',()=>{const detail=document.getElementById('ending-detail');if(got&&d)detail.innerHTML=`<b>END ${String(i).padStart(3,'0')}「${d.title}」</b><br><span class="small">${d.rarity}</span><hr>${d.desc}`;else detail.textContent='まだ取得していないエンディングです。';});grid.appendChild(cell)}updateCounts();show('collection')}
+function renderMemory(){const box=document.getElementById('memory-list');box.innerHTML='';const arr=Object.values(memoryDefs).filter(m=>m.if(state));if(!arr.length){box.innerHTML='<div class="memory"><b>まだ何も思い出せない。</b><span class="small">エンディングを集めることで、周回後に新しい選択肢が現れます。</span></div>'}else arr.forEach(m=>{const d=document.createElement('div');d.className='memory';d.innerHTML=`<b>${m.title}</b><span class="small">${m.desc}</span>`;box.appendChild(d)});show('memory')}
+
+document.getElementById('btn-start').addEventListener('click',()=>state.current&&scenes[state.current]?renderScene(state.current):startLoop());
+document.getElementById('btn-collection').addEventListener('click',()=>{returnScreen='title';renderCollection()});
+document.getElementById('btn-memory').addEventListener('click',()=>{returnScreen='title';renderMemory()});
+document.getElementById('btn-reset').addEventListener('click',()=>{if(confirm('エンディング図鑑と周回記録をすべて初期化しますか？')){state=blankState();save();goTitle()}});
+document.getElementById('btn-nextloop').addEventListener('click',startLoop);
+document.getElementById('btn-endcollection').addEventListener('click',()=>{returnScreen='end';renderCollection()});
+document.getElementById('btn-endtitle').addEventListener('click',goTitle);
+document.getElementById('btn-colback').addEventListener('click',()=>show(returnScreen));
+document.getElementById('btn-memback').addEventListener('click',()=>show(returnScreen));
+updateCounts();
+if(state.current&&scenes[state.current])renderScene(state.current);else show('title');
+})();
+</script>
+</body>
+</html>
