@@ -37,10 +37,27 @@
 #story .btn:active{background:rgba(31,39,54,.94)}
 @media(max-width:360px){#title .title{font-size:30px}}
 
+
+/* v0.4 typewriter + BGM */
+#bgmToggle{
+  position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(10px + env(safe-area-inset-top));
+  z-index:50;border:1px solid rgba(255,255,255,.18);background:rgba(10,14,21,.72);
+  color:#f4f7fb;border-radius:999px;padding:8px 11px;font-size:12px;
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  box-shadow:0 6px 20px rgba(0,0,0,.2)
+}
+#storybox{cursor:pointer;user-select:none;-webkit-user-select:none}
+#storybox.typing::after{
+  content:"▌";display:inline-block;margin-left:2px;opacity:.9;animation:blink .8s steps(1) infinite
+}
+@keyframes blink{50%{opacity:0}}
+#choices.waiting{opacity:0;pointer-events:none;transform:translateY(5px)}
+#choices{transition:opacity .24s ease,transform .24s ease}
+
 </style>
 </head>
-<body><main class="app">
-<section id="title" class="center"><div style="height:18vh;min-height:90px"></div><h1 class="title">今日が終わるまでに。</h1><div class="subtitle">CHOICE LOOP STORY</div><div id="titleCount" class="count"></div><div class="menu"><button class="btn primary" id="start">朝を迎える</button><button class="btn" id="collection">エンディング図鑑</button><button class="btn" id="memory">記憶</button><button class="btn ghost" id="reset">セーブデータを初期化</button></div><div class="notice">v0.3｜ILLUSTRATION UPDATE / 100 ENDINGS</div></section>
+<body><button id="bgmToggle" type="button">♫ BGM ON</button><main class="app">
+<section id="title" class="center"><div style="height:18vh;min-height:90px"></div><h1 class="title">今日が終わるまでに。</h1><div class="subtitle">CHOICE LOOP STORY</div><div id="titleCount" class="count"></div><div class="menu"><button class="btn primary" id="start">朝を迎える</button><button class="btn" id="collection">エンディング図鑑</button><button class="btn" id="memory">記憶</button><button class="btn ghost" id="reset">セーブデータを初期化</button></div><div class="notice">v0.4｜TYPEWRITER + BGM / 100 ENDINGS</div></section>
 <section id="story" class="hidden"><div class="topbar"><div id="stime" class="time"></div><div id="splace" class="place"></div></div><div id="storybox" class="story"></div><div id="choices" class="choices"></div></section>
 <section id="end" class="hidden endcard"><div id="new" class="newbadge hidden">NEW ENDING</div><div id="eno" class="endno"></div><div id="etitle" class="endtitle"></div><div id="erarity" class="rarity"></div><div id="edesc" class="enddesc"></div><div class="menu"><button class="btn primary" id="next">次の朝へ</button><button class="btn" id="endCollection">図鑑を見る</button><button class="btn ghost" id="endTitle">タイトルへ</button></div></section>
 <section id="collect" class="hidden"><div class="head"><h2>ENDING COLLECTION</h2><div id="ccount" class="count" style="margin:0"></div></div><div class="progress"><span id="bar"></span></div><div id="grid" class="grid"></div><div id="detail" class="detail small">取得したエンディングをタップすると詳細を表示します。</div><div class="menu" style="margin-top:14px"><button class="btn ghost" id="back1">戻る</button></div></section>
@@ -62,7 +79,60 @@ function has(n){return state.got.includes(n)}
 function prereq(n){if(n===100)return state.got.length===99 && !has(100);const a=needs[n]||[];return a.every(has)}
 function routeVisible(r){if(r.need&&!has(r.need))return false;return state.got.length>=(r.min||0)}
 function availableEnds(r){return r.ends.filter(n=>!has(n)&&prereq(n)).slice(0,8)}
-function storyScene(time,place,html,buttons){stime.textContent=time;splace.textContent=place;storybox.innerHTML=html;choices.innerHTML='';buttons.forEach(b=>{const x=document.createElement('button');x.className='btn';x.type='button';x.innerHTML=b.label+(b.sub?`<small>${b.sub}</small>`:'');x.addEventListener('click',b.go);choices.appendChild(x)});show('story')}
+let typingToken=0;
+function typeHTML(target,html,onDone){
+  const token=++typingToken;
+  const temp=document.createElement('div');temp.innerHTML=html;
+  target.innerHTML='';target.classList.add('typing');
+  const queue=[];
+  function build(src,parent){
+    src.childNodes.forEach(node=>{
+      if(node.nodeType===Node.TEXT_NODE){
+        const text=document.createTextNode('');parent.appendChild(text);
+        queue.push({node:text,text:node.nodeValue||'',i:0});
+      }else if(node.nodeType===Node.ELEMENT_NODE){
+        const el=document.createElement(node.tagName);
+        [...node.attributes].forEach(a=>el.setAttribute(a.name,a.value));
+        parent.appendChild(el);build(node,el);
+      }
+    });
+  }
+  build(temp,target);
+  let qi=0, timer=null, done=false;
+  const finish=()=>{
+    if(done||token!==typingToken)return;
+    done=true;if(timer)clearTimeout(timer);
+    target.innerHTML=html;target.classList.remove('typing');
+    target.onclick=null;onDone&&onDone();
+  };
+  target.onclick=finish;
+  function tick(){
+    if(done||token!==typingToken)return;
+    while(qi<queue.length && queue[qi].i>=queue[qi].text.length)qi++;
+    if(qi>=queue.length){finish();return}
+    const q=queue[qi], ch=q.text[q.i++];
+    q.node.nodeValue+=ch;
+    let delay=34;
+    if(/[。！？!?]/.test(ch))delay=240;
+    else if(/[、，,]/.test(ch))delay=105;
+    else if(/[—…]/.test(ch))delay=130;
+    timer=setTimeout(tick,delay);
+  }
+  tick();
+}
+function storyScene(time,place,html,buttons){
+  stime.textContent=time;splace.textContent=place;choices.innerHTML='';
+  choices.classList.add('waiting');
+  show('story');
+  typeHTML(storybox,html,()=>{
+    buttons.forEach(b=>{
+      const x=document.createElement('button');x.className='btn';x.type='button';
+      x.innerHTML=b.label+(b.sub?`<small>${b.sub}</small>`:'');
+      x.addEventListener('click',b.go);choices.appendChild(x)
+    });
+    requestAnimationFrame(()=>choices.classList.remove('waiting'));
+  });
+}
 function morning(){state.runs++;save();const btns=[];routes.filter(routeVisible).forEach(r=>btns.push({label:r.label,sub:r.id==='final'?'これまでの記憶が一本の道に繋がっている。':'',go:()=>openRoute(r)}));storyScene('7:00','自室',`<p>ピピピピ——。</p><p>目覚ましの音で目を覚ました。</p><p>${state.runs===1?'今日も、いつもと変わらない一日が始まる。':state.runs<10?'また朝が来た。少しだけ、昨日と同じ匂いがする。':state.runs<50?'……また、この朝だ。':'今日が何度目なのか、もう数えるのをやめた。'}</p>`,btns)}
 function openRoute(r){const av=availableEnds(r);const btns=[];if(av.length)av.forEach(n=>btns.push({label:choiceLabel(n),sub:choiceSub(n),go:()=>preEnding(r,n)}));else btns.push({label:'今日は別のことをする',go:morning});storyScene(r.time,r.place,`<div class="routeTag">${r.label}</div><p>${r.intro}</p><p class="hint">この場面では、今の記憶で選べる行動だけが表示されています。</p>`,btns)}
 function choiceLabel(n){const map={1:'真面目に一日を終える',2:'もう一度寝る',3:'連絡せず休む',4:'勝っているうちに帰る',5:'さらに勝負する',6:'知らない番号に出る',7:'いつもの道を行く',8:'事故現場へ先回りする',9:'遅刻してでも向かう',10:'きちんと休む',11:'ゲームだけして過ごす',12:'映画館へ行く',13:'一日中食べ歩く',14:'健康的に過ごす',15:'欲しい物を全部買う',16:'部屋を掃除する',17:'誰にも会わない',18:'公園でゆっくりする',19:'終電まで遊ぶ',20:'23:59まで歩く',21:'旧友に会う',22:'冷たい言葉を選ぶ',23:'謝る',24:'親切を続ける',25:'告白を断る',26:'告白を受ける',27:'明日の約束をする',28:'約束の場所で待つ',29:'街を探し回る',30:'いつもの逆順で探す',31:'家族と過ごす',32:'大事な話を避ける',33:'ありがとうと伝える',34:'昔話を聞く',35:'アルバムを見る',36:'迷子を助ける',37:'危険な場所へ飛び込む',38:'全部見て見ぬふりをする',39:'困っている人を全部助ける',40:'街中の人に話しかける',41:'怪しい場所をうろつく',42:'さらに警察を困らせる',43:'逃げる',44:'高いビルの屋上へ',45:'エレベーターに乗り続ける',46:'13階を押す',47:'白い部屋へ入る',48:'椅子に座る',49:'もう一人を待つ',50:'知らない道だけを選ぶ',51:'電車の終点へ',52:'海へ行く',53:'財布を拾う',54:'財布を持ち帰る',55:'中身を確認する',56:'持ち主へ返す',57:'宝くじを一枚買う',58:'覚えている番号を選ぶ',59:'大量に買う',60:'金を捨てて0時を待つ',61:'同じ場所を何度も歩く',62:'ニュースを先読みする',63:'次の角を予言する',64:'事故を見届ける',65:'記憶を整理する',66:'机のメモを読む',67:'電話に出ない',68:'何度でも無視する',69:'携帯を捨てる',70:'公衆電話に出る',71:'赤い傘を追う',72:'最初の赤い傘を追う',73:'声の主を探す',74:'何回目か聞く',75:'自分の記憶を疑う',76:'23:59まで起きる',77:'0時を見る',78:'外へ出る',79:'動く人影を探す',80:'人影を追う',81:'走り続ける',82:'逆方向へ回り込む',83:'未来の自分の話を聞く',84:'電話の矛盾を考える',85:'0時の先を見る',86:'100回目の朝を迎える',87:'何も選ばない',88:'選択肢にない道へ行く',89:'自分の名前を調べる',90:'街の外へ出る',91:'境界に触れる',92:'境界を越える',93:'白い空間を進む',94:'観測者に問いかける',95:'画面の向こうを見る',96:'彼女の過去を聞く',97:'最初の日を思い出す',98:'事故を完全に防ぐ',99:'今日を手放す',100:'明日へ進む'};return map[n]||endings[n].title}
@@ -73,9 +143,70 @@ function nextTime(n){if(n>=76)return '23:59';if(n>=61)return '18:40';if(n>=41)re
 function finish(n){const e=endings[n];const isNew=!has(n);if(isNew)state.got.push(n);state.got.sort((a,b)=>a-b);state.last=n;save();newEl.classList.toggle('hidden',!isNew);eno.textContent='END '+String(n).padStart(3,'0');etitle.textContent=e.title;erarity.textContent=e.rarity;edesc.textContent=e.desc;show('end')}
 function drawCollection(){grid.innerHTML='';for(let n=1;n<=100;n++){const e=endings[n],got=has(n);const d=document.createElement('button');d.type='button';d.className='cell'+(got?' got':'');d.innerHTML=`<span class="num">${String(n).padStart(3,'0')}</span><span class="name">${got?e.title:'？？？？？'}</span>`;d.addEventListener('click',()=>{detail.innerHTML=got?`<b>END ${String(n).padStart(3,'0')}｜${e.title}</b><br><span class="small">${e.rarity}</span><br><br>${e.desc}`:'まだ見ていないエンディングです。';});grid.appendChild(d)}updateCount()}
 function drawMemory(){const msgs=[];const n=state.got.length;msgs.push(['周回','この朝を '+state.runs+' 回迎えている。']);if(has(7))msgs.push(['事故の記憶','あの交差点で何が起きるか覚えている。']);if(has(6))msgs.push(['知らない声','「明日のあなたを知ってる人。」という言葉が残っている。']);if(has(16))msgs.push(['今日の日付の写真','今日撮られたはずのない写真を見つけた。']);if(has(40))msgs.push(['街の違和感','この街は自分のことを知りすぎている。']);if(has(60))msgs.push(['0時の法則','金も結果も、0時を越えれば意味を失う。']);if(has(65))msgs.push(['ループの自覚','夢ではない。記憶だけが残っている。']);if(has(75))msgs.push(['27回目','自分が覚えていない周回が存在する。']);if(has(85))msgs.push(['0時01分','世界は0時の先を隠している。']);if(has(95))msgs.push(['観測者','選択しているのは、自分だけではない。']);if(has(99))msgs.push(['最後の答え','終わらせるには、この日を手放さなければならない。']);if(n===100)msgs.push(['明日','日付は変わった。']);memlist.innerHTML=msgs.map(x=>`<div><b>${x[0]}</b><span class="small">${x[1]}</span></div>`).join('')}
+
+/* Original generative ambient BGM — no external audio file */
+let audioCtx=null,bgmMaster=null,bgmTimer=null,bgmOn=true,bgmStep=0;
+const bgmProgressions=[
+  [220.00,261.63,329.63],
+  [196.00,246.94,293.66],
+  [174.61,220.00,261.63],
+  [196.00,246.94,329.63]
+];
+function ensureAudio(){
+  if(!audioCtx){
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    bgmMaster=audioCtx.createGain();
+    bgmMaster.gain.value=.055;
+    bgmMaster.connect(audioCtx.destination);
+  }
+  if(audioCtx.state==='suspended')audioCtx.resume();
+}
+function playTone(freq,start,dur,vol=.10,type='sine'){
+  if(!audioCtx||!bgmMaster)return;
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();
+  o.type=type;o.frequency.value=freq;f.type='lowpass';f.frequency.value=1800;
+  g.gain.setValueAtTime(0,start);
+  g.gain.linearRampToValueAtTime(vol,start+.08);
+  g.gain.exponentialRampToValueAtTime(.0001,start+dur);
+  o.connect(f);f.connect(g);g.connect(bgmMaster);
+  o.start(start);o.stop(start+dur+.03);
+}
+function bgmPhrase(){
+  if(!bgmOn||!audioCtx)return;
+  const now=audioCtx.currentTime+.05;
+  const chord=bgmProgressions[bgmStep%bgmProgressions.length];
+  chord.forEach((f,i)=>playTone(f/2,now,4.5,.055,'sine'));
+  const notes=[chord[0],chord[1],chord[2],chord[1],chord[0]*2];
+  notes.forEach((f,i)=>playTone(f,now+i*.82,1.5,.045,i%2?'triangle':'sine'));
+  bgmStep++;
+}
+function startBgm(){
+  if(!bgmOn)return;
+  ensureAudio();
+  if(!bgmTimer){bgmPhrase();bgmTimer=setInterval(bgmPhrase,4100)}
+}
+function stopBgm(){
+  if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null}
+  if(bgmMaster&&audioCtx){
+    const t=audioCtx.currentTime;
+    bgmMaster.gain.cancelScheduledValues(t);
+    bgmMaster.gain.setTargetAtTime(.0001,t,.08);
+    setTimeout(()=>{if(bgmMaster&&bgmOn===false)bgmMaster.gain.value=.055},300);
+  }
+}
+function setBgm(on){
+  bgmOn=on;
+  try{localStorage.setItem('kyou_bgm_on',on?'1':'0')}catch(e){}
+  const b=document.getElementById('bgmToggle');
+  if(b)b.textContent=on?'♫ BGM ON':'♫ BGM OFF';
+  if(on){if(bgmMaster)bgmMaster.gain.value=.055;startBgm()}else stopBgm();
+}
+try{bgmOn=localStorage.getItem('kyou_bgm_on')!=='0'}catch(e){}
+
 const titleCount=document.getElementById('titleCount'),ccount=document.getElementById('ccount'),bar=document.getElementById('bar'),stime=document.getElementById('stime'),splace=document.getElementById('splace'),storybox=document.getElementById('storybox'),choices=document.getElementById('choices'),newEl=document.getElementById('new'),eno=document.getElementById('eno'),etitle=document.getElementById('etitle'),erarity=document.getElementById('erarity'),edesc=document.getElementById('edesc'),grid=document.getElementById('grid'),detail=document.getElementById('detail'),memlist=document.getElementById('memlist');
+const bgmToggle=document.getElementById('bgmToggle');
 const startBtn=document.getElementById('start'),collectionBtn=document.getElementById('collection'),memoryBtn=document.getElementById('memory'),resetBtn=document.getElementById('reset'),nextBtn=document.getElementById('next'),endCollectionBtn=document.getElementById('endCollection'),endTitleBtn=document.getElementById('endTitle'),back1Btn=document.getElementById('back1'),back2Btn=document.getElementById('back2');
-startBtn.onclick=morning;collectionBtn.onclick=()=>{returnTo='title';drawCollection();show('collect')};memoryBtn.onclick=()=>{returnTo='title';drawMemory();show('memscreen')};resetBtn.onclick=()=>{if(confirm('セーブデータをすべて初期化しますか？')){state=blank();save();drawCollection();alert('初期化しました。')}};nextBtn.onclick=morning;endCollectionBtn.onclick=()=>{returnTo='end';drawCollection();show('collect')};endTitleBtn.onclick=()=>show('title');back1Btn.onclick=()=>show(returnTo);back2Btn.onclick=()=>show(returnTo);
+bgmToggle.textContent=bgmOn?'♫ BGM ON':'♫ BGM OFF';bgmToggle.onclick=()=>setBgm(!bgmOn);startBtn.onclick=()=>{startBgm();morning()};collectionBtn.onclick=()=>{returnTo='title';drawCollection();show('collect')};memoryBtn.onclick=()=>{returnTo='title';drawMemory();show('memscreen')};resetBtn.onclick=()=>{if(confirm('セーブデータをすべて初期化しますか？')){state=blank();save();drawCollection();alert('初期化しました。')}};nextBtn.onclick=()=>{startBgm();morning()};endCollectionBtn.onclick=()=>{returnTo='end';drawCollection();show('collect')};endTitleBtn.onclick=()=>show('title');back1Btn.onclick=()=>show(returnTo);back2Btn.onclick=()=>show(returnTo);
 updateCount();
 })();
 </script></body></html>
