@@ -46,6 +46,14 @@
   backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
   box-shadow:0 6px 20px rgba(0,0,0,.2)
 }
+#sfxToggle{
+  position:fixed;right:max(12px,env(safe-area-inset-right));top:calc(50px + env(safe-area-inset-top));
+  z-index:50;border:1px solid rgba(255,255,255,.18);background:rgba(10,14,21,.72);
+  color:#f4f7fb;border-radius:999px;padding:8px 11px;font-size:12px;
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  box-shadow:0 6px 20px rgba(0,0,0,.2)
+}
+#bgmToggle:active,#sfxToggle:active{transform:scale(.96)}
 #storybox{cursor:pointer;user-select:none;-webkit-user-select:none}
 #storybox.typing::after{
   content:"▌";display:inline-block;margin-left:2px;opacity:.9;animation:blink .8s steps(1) infinite
@@ -100,8 +108,8 @@
 @media(max-width:360px){.profileName{font-size:24px}.rankRow{grid-template-columns:34px 1fr auto;padding:10px}.rankEnding{font-size:17px}}
 </style>
 </head>
-<body><button id="bgmToggle" type="button">♫ BGM ON</button><main class="app">
-<section id="title" class="center"><div style="height:18vh;min-height:90px"></div><h1 class="title">今日が終わるまでに。</h1><div class="subtitle">CHOICE LOOP STORY</div><div id="titleCount" class="count"></div><div class="playerBadge">PLAYER <b id="titlePlayerName">未登録</b></div><div class="menu"><button class="btn primary" id="start">朝を迎える</button><button class="btn" id="collection">エンディング図鑑</button><button class="btn" id="memory">記憶</button><button class="btn" id="profile">プロフィール</button><button class="btn" id="ranking">ランキング</button><button class="btn" id="credits">CREDITS</button><button class="btn ghost" id="reset">セーブデータを初期化</button></div><div class="notice">v0.9｜PLAYER & LOCAL RANKING UPDATE / Created by COPA GAMES</div><div class="copyright">© 2026 COPA GAMES</div><div id="creditsModal" class="creditsModal hidden" role="dialog" aria-modal="true"><div class="creditsCard"><button id="creditsClose" class="modalClose" type="button" aria-label="閉じる">×</button><div class="creditsLogo">今日が終わるまでに。</div><div class="creditsSub">CHOICE LOOP STORY</div><div class="creditsLine">Created by <b>COPA GAMES</b></div><div class="creditsLine small">Story / Game Design / Direction</div><div class="creditsLine">COPA GAMES</div><div class="creditsCopy">© 2026 COPA GAMES</div></div></div></section>
+<body><button id="bgmToggle" type="button">♫ BGM ON</button><button id="sfxToggle" type="button">● SFX ON</button><main class="app">
+<section id="title" class="center"><div style="height:18vh;min-height:90px"></div><h1 class="title">今日が終わるまでに。</h1><div class="subtitle">CHOICE LOOP STORY</div><div id="titleCount" class="count"></div><div class="playerBadge">PLAYER <b id="titlePlayerName">未登録</b></div><div class="menu"><button class="btn primary" id="start">朝を迎える</button><button class="btn" id="collection">エンディング図鑑</button><button class="btn" id="memory">記憶</button><button class="btn" id="profile">プロフィール</button><button class="btn" id="ranking">ランキング</button><button class="btn" id="credits">CREDITS</button><button class="btn ghost" id="reset">セーブデータを初期化</button></div><div class="notice">v1.0｜SCENE MUSIC & TAP SFX UPDATE / Created by COPA GAMES</div><div class="copyright">© 2026 COPA GAMES</div><div id="creditsModal" class="creditsModal hidden" role="dialog" aria-modal="true"><div class="creditsCard"><button id="creditsClose" class="modalClose" type="button" aria-label="閉じる">×</button><div class="creditsLogo">今日が終わるまでに。</div><div class="creditsSub">CHOICE LOOP STORY</div><div class="creditsLine">Created by <b>COPA GAMES</b></div><div class="creditsLine small">Story / Game Design / Direction</div><div class="creditsLine">COPA GAMES</div><div class="creditsCopy">© 2026 COPA GAMES</div></div></div></section>
 <section id="story" class="hidden"><div class="topbar"><div id="stime" class="time"></div><div id="splace" class="place"></div></div><div id="storybox" class="story"></div><div id="choices" class="choices"></div></section>
 <section id="end" class="hidden endcard"><div id="new" class="newbadge hidden">NEW ENDING</div><div id="eno" class="endno"></div><div id="etitle" class="endtitle"></div><div id="erarity" class="rarity"></div><div id="edesc" class="enddesc"></div><div class="menu"><button class="btn primary" id="next">次の朝へ</button><button class="btn" id="endCollection">図鑑を見る</button><button class="btn ghost" id="endTitle">タイトルへ</button></div></section>
 <section id="collect" class="hidden"><div class="head"><h2>ENDING COLLECTION</h2><div id="ccount" class="count" style="margin:0"></div></div><div class="progress"><span id="bar"></span></div><div id="grid" class="grid"></div><div id="detail" class="detail small"></div><div id="collectionModal" class="collectionModal hidden" role="dialog" aria-modal="true"><div id="collectionModalCard" class="collectionModalCard"><button id="collectionModalClose" class="modalClose" type="button" aria-label="閉じる">×</button><div id="collectionModalBody"></div></div></div><div class="menu" style="margin-top:14px"><button class="btn ghost" id="back1">戻る</button></div></section>
@@ -161,7 +169,7 @@ function renderRanking(){recordRanking();const ranks=sortedRanks(),box=document.
 function blank(){return {got:[],runs:0,last:null}}
 function load(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return x&&Array.isArray(x.got)?{...blank(),...x}:blank()}catch(e){return blank()}}
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){} updateCount();recordRanking()}
-function show(id){document.querySelectorAll('main>section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');window.scrollTo(0,0)}
+function show(id){document.querySelectorAll('main>section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');window.scrollTo(0,0);if(id==='title')setSceneBgm('title');else if(['collect','memscreen','profilescreen','rankingscreen'].includes(id))setSceneBgm('menu')}
 function updateCount(){const n=state.got.length;titleCount.textContent=`ENDING COLLECTION ${n} / 100`;ccount.textContent=`${n} / 100`;bar.style.width=n+'%'}
 function has(n){return state.got.includes(n)}
 function prereq(n){if(n===100)return state.got.length===99 && !has(100);const a=needs[n]||[];return a.every(has)}
@@ -210,6 +218,7 @@ function typeHTML(target,html,onDone){
 }
 function storyScene(time,place,html,buttons,sceneKey=''){
   setSceneArt(sceneKey);
+  setSceneBgm(sceneKey,place);
   stime.textContent=time;splace.textContent=place;choices.innerHTML='';
   choices.classList.add('waiting');
   show('story');
@@ -223,7 +232,7 @@ function storyScene(time,place,html,buttons,sceneKey=''){
     requestAnimationFrame(()=>choices.classList.remove('waiting'));
   });
 }
-function morning(countRun=true){if(countRun){state.runs++;save()}const btns=[];routes.filter(routeVisible).forEach(r=>{const gs=routeAvailableGroups(r),mem=gs.some(groupHasMemoryUnlock);btns.push({label:r.label,sub:r.id==='final'?'これまでの記憶が一本の道に繋がっている。':mem?'この道で、前の周回の記憶が反応している。':'',memory:mem,go:()=>openRoute(r)})});const remembered=Object.keys(MEMORY_HINTS).filter(k=>has(Number(k))).length;const awareness=state.runs===1?'今日も、いつもと変わらない一日が始まる。':state.runs<5?'また朝が来た。昨日と同じようで、どこか違う。':state.runs<15?'目を開ける前から、部屋の景色を知っていた。':state.runs<50?'……また、この朝だ。もう偶然ではない。':'今日が何度目なのか、もう数えるのをやめた。';const memoryLine=state.got.length>=7?`<p class="decisionCue">${state.got.length}個の結末を覚えている。記憶によって選べる行動が変わり始めている。</p>`:'';storyScene('7:00','自室',`<p>ピピピピ——。</p><p>目覚ましの音で目を覚ました。</p><p>${awareness}</p>${memoryLine}<p><b>今日は、どう過ごす？</b></p>`,btns,1)}
+function morning(countRun=true){if(countRun){state.runs++;save()}const btns=[];routes.filter(routeVisible).forEach(r=>{const gs=routeAvailableGroups(r),mem=gs.some(groupHasMemoryUnlock);btns.push({label:r.label,sub:r.id==='final'?'これまでの記憶が一本の道に繋がっている。':mem?'この道で、前の周回の記憶が反応している。':'',memory:mem,go:()=>openRoute(r)})});const remembered=Object.keys(MEMORY_HINTS).filter(k=>has(Number(k))).length;const awareness=state.runs===1?'今日も、いつもと変わらない一日が始まる。':state.runs<5?'また朝が来た。昨日と同じようで、どこか違う。':state.runs<15?'目を開ける前から、部屋の景色を知っていた。':state.runs<50?'……また、この朝だ。もう偶然ではない。':'今日が何度目なのか、もう数えるのをやめた。';const memoryLine=state.got.length>=7?`<p class="decisionCue">${state.got.length}個の結末を覚えている。記憶によって選べる行動が変わり始めている。</p>`:'';storyScene('7:00','自室',`<p>ピピピピ——。</p><p>目覚ましの音で目を覚ました。</p><p>${awareness}</p>${memoryLine}<p><b>今日は、どう過ごす？</b></p>`,btns,'morning')}
 /* v0.7 story-flow rewrite: route -> intermediate scene -> question -> choice -> consequence */
 const ROUTE_STORIES={"work":[{"id":"work_go","label":"そのまま出勤する","time":"7:38","place":"自宅前","art":9,"ends":[1,9]},{"id":"work_off","label":"出勤前に体調が気になる","time":"7:32","place":"自室","art":1,"ends":[3,10]},{"id":"work_phone","label":"鳴っている知らない番号を見る","time":"7:47","place":"通勤路","art":6,"ends":[6]},{"id":"work_crossing","label":"いつもの交差点へ向かう","time":"7:55","place":"交差点","art":7,"ends":[7,8]}],"rest":[{"id":"rest_sleep","label":"もう少し眠る","time":"9:12","place":"自室","art":2,"ends":[2]},{"id":"rest_room","label":"今日は家から出ない","time":"10:05","place":"自室","art":11,"ends":[11,16,17]},{"id":"rest_out","label":"せっかくなので外へ出る","time":"10:40","place":"街","art":12,"ends":[12,13,14,15,18]}],"town":[{"id":"town_gamble","label":"遊技店をのぞいてみる","time":"14:20","place":"遊技店","art":4,"ends":[4,5]},{"id":"town_night","label":"夜まで街に残る","time":"22:40","place":"繁華街","art":19,"ends":[19,20]},{"id":"town_police","label":"人通りの少ない路地へ入る","time":"16:05","place":"裏路地","art":41,"ends":[41,42,43]},{"id":"town_building","label":"見覚えのない高層ビルを調べる","time":"16:25","place":"高層ビル","art":44,"ends":[44,45,46,47,48,49]},{"id":"town_wander","label":"行ったことのない場所まで行く","time":"13:15","place":"街","art":50,"ends":[50,51,52]},{"id":"town_wallet","label":"道端の落とし物が気になる","time":"12:55","place":"商店街","art":53,"ends":[53,54,55,56]},{"id":"town_lottery","label":"宝くじ売り場に立ち寄る","time":"15:30","place":"宝くじ売り場","art":57,"ends":[57,58,59,60]}],"people":[{"id":"people_friend","label":"久しぶりの友人に会う","time":"13:00","place":"喫茶店","art":21,"ends":[21,22,23]},{"id":"people_romance","label":"最近気になる人に会う","time":"15:10","place":"街","art":24,"ends":[24,25,26,27,28,29,30]},{"id":"people_family","label":"家族のところへ顔を出す","time":"17:30","place":"実家","art":31,"ends":[31,32,33,34,35]},{"id":"people_help","label":"街で困っている人に目を向ける","time":"14:20","place":"街","art":36,"ends":[36,37,38,39,40]}],"loop":[{"id":"loop_dejavu","label":"何度も見る景色を確かめる","time":"18:10","place":"街","art":61,"ends":[61,62,63,64,65]},{"id":"loop_phone","label":"謎の電話について調べる","time":"18:40","place":"自室・街","art":66,"ends":[66,67,68,69,70]},{"id":"loop_umbrella","label":"電話の声の主を探す","time":"20:15","place":"夜の街","art":71,"ends":[71,72,73,74,75]}],"midnight":[{"id":"midnight_clock","label":"0時になる瞬間を観測する","time":"23:59","place":"自室","art":76,"ends":[76,77,78]},{"id":"midnight_shadow","label":"止まった街の人影を追う","time":"0:00","place":"止まった街","art":79,"ends":[79,80,81,82,83,84,85]}],"secret":[{"id":"secret_choice","label":"自分に与えられた「選択」を疑う","time":"7:00","place":"100回目の朝","art":86,"ends":[86,87,88,89]},{"id":"secret_boundary","label":"この街の外側を探す","time":"16:50","place":"街の端","art":90,"ends":[90,91,92]},{"id":"secret_observer","label":"白い空間の奥へ進む","time":"0:01","place":"世界の外側","art":93,"ends":[93,94,95]}],"final":[{"id":"final_truth","label":"彼女と最後まで真相を追う","time":"23:50","place":"最後の一日","art":96,"ends":[96,97,98,99,100]}]};
 const CHOICE_LABELS={"1":"いつも通り仕事へ向かう","2":"もう一度だけ眠る","3":"連絡せずに休む","4":"勝っているうちに店を出る","5":"まだ勝負を続ける","6":"知らない番号に出る","7":"いつもの交差点を渡る","8":"事故が起きる場所へ先回りする","9":"走ってでも職場へ向かう","10":"職場に連絡して休む","11":"ゲームをして一日を過ごす","12":"映画館へ行く","13":"食べ歩きに出る","14":"運動して健康的に過ごす","15":"欲しい物を買いに行く","16":"部屋を徹底的に掃除する","17":"誰にも会わず部屋にこもる","18":"公園でのんびり過ごす","19":"終電まで街で遊ぶ","20":"0時になるまで歩き続ける","21":"旧友とゆっくり話す","22":"苛立ちをそのままぶつける","23":"今度こそ素直に謝る","24":"もう少し一緒に過ごす","25":"気持ちには応えられないと伝える","26":"告白を受け入れる","27":"明日も会う約束をする","28":"約束の場所で待ち続ける","29":"街中を探し回る","30":"記憶と逆の順番で探す","31":"家族とゆっくり過ごす","32":"大事な話から逃げる","33":"今度こそ「ありがとう」と伝える","34":"母の昔話を聞く","35":"アルバムを開く","36":"迷子の子に声をかける","37":"危険の中へ助けに入る","38":"関わらず通り過ぎる","39":"困っている人を片っ端から助ける","40":"なぜ名前を知っているのか聞く","41":"怪しい路地をさらに奥へ進む","42":"警官をさらに困らせる","43":"その場から逃げる","44":"屋上へ上がって街を見る","45":"エレベーターで階を確かめる","46":"「13」のボタンを押す","47":"白い部屋へ足を踏み入れる","48":"中央の椅子に座る","49":"何もせず、誰かを待つ","50":"知らない道だけを選んで歩く","51":"終点まで電車に乗る","52":"海まで行く","53":"財布を拾う","54":"財布を持ち帰る","55":"中身を確かめる","56":"持ち主を探して返す","57":"宝くじを一枚だけ買う","58":"覚えている番号で買う","59":"同じ番号を大量に買う","60":"手に入れた金を捨てて0時を待つ","61":"同じ道をもう一度歩く","62":"ニュースの続きを先に言ってみる","63":"次の角で起きることを確かめる","64":"事故が起きる場所へ行く","65":"残っている記憶を整理する","66":"机の上のメモを読む","67":"着信を無視する","68":"何度鳴っても出ない","69":"スマホを捨てる","70":"鳴っている公衆電話に出る","71":"赤い傘を追う","72":"最初に見えた赤い傘を追う","73":"電話の声を頼りに彼女を探す","74":"「何回目なのか」と聞く","75":"自分の記憶にない周回を確かめる","76":"23:59まで起きて待つ","77":"0:00になる瞬間を見届ける","78":"止まった街へ出る","79":"動いている人影を探す","80":"人影を追う","81":"走って追い続ける","82":"先回りして人影を捕まえる","83":"未来の自分の話を最後まで聞く","84":"電話の矛盾を整理する","85":"0:01を確かめる","86":"100回目の朝を受け入れる","87":"何も選ばず、その場で待つ","88":"表示されていない道へ進む","89":"自分の名前の記録を調べる","90":"街の外へ向かう","91":"見えない壁に触れる","92":"境界を越える","93":"白い空間の奥へ進む","94":"観測者に「ここは何だ」と聞く","95":"画面の向こうへ問いかける","96":"彼女のすべてを聞く","97":"最初の日の記憶をたどる","98":"今度こそ事故を完全に防ぐ","99":"今日を手放す","100":"明日へ進む"};
@@ -443,7 +452,7 @@ function preEnding(r,n,group){
   storyScene(c.time,c.place,body,btns,n);
 }
 function nextTime(n){if(n>=76)return '23:59';if(n>=61)return '18:40';if(n>=41)return '16:20';if(n>=21)return '15:10';return '12:00'}
-function finish(n){const e=endings[n];const isNew=!has(n);if(isNew)state.got.push(n);state.got.sort((a,b)=>a-b);state.last=n;save();newEl.classList.toggle('hidden',!isNew);eno.textContent='END '+String(n).padStart(3,'0');etitle.textContent=e.title;erarity.textContent=e.rarity;edesc.textContent=e.desc;show('end')}
+function finish(n){const e=endings[n];const isNew=!has(n);if(isNew)state.got.push(n);state.got.sort((a,b)=>a-b);state.last=n;save();newEl.classList.toggle('hidden',!isNew);eno.textContent='END '+String(n).padStart(3,'0');etitle.textContent=e.title;erarity.textContent=e.rarity;edesc.textContent=e.desc;setEndingBgm(e.rarity,n);show('end')}
 function drawCollection(){grid.innerHTML='';closeCollectionModal();for(let n=1;n<=100;n++){const e=endings[n],got=has(n);const d=document.createElement('button');d.type='button';d.className='cell'+(got?' got '+rarityClass(e.rarity):'');d.innerHTML=`<span class="num">${String(n).padStart(3,'0')}</span><span class="name">${got?e.title:'？？？？？'}</span>`;d.addEventListener('click',()=>openCollectionModal(n,got));grid.appendChild(d)}updateCount()}
 function drawMemory(){
   const msgs=[];const n=state.got.length;
@@ -454,70 +463,62 @@ function drawMemory(){
   memlist.innerHTML=unlockedHtml+msgs.map(x=>`<div><b>${x[0]}</b><span class="small">${x[1]}</span></div>`).join('');
 }
 
-/* Original generative ambient BGM — no external audio file */
-let audioCtx=null,bgmMaster=null,bgmTimer=null,bgmOn=true,bgmStep=0;
-const bgmProgressions=[
-  [220.00,261.63,329.63],
-  [196.00,246.94,293.66],
-  [174.61,220.00,261.63],
-  [196.00,246.94,329.63]
-];
+/* v1.0 scene BGM + tap SFX — generated with Web Audio, no external audio files */
+let audioCtx=null,bgmMaster=null,sfxMaster=null,bgmTimer=null,bgmOn=true,sfxOn=true,bgmStep=0;
+let currentTheme='title',currentSceneSeed=0;
+const activeBgmNodes=new Set();
+const BGM_THEMES={
+  title:{phrase:4.6,vol:.040,pad:'sine',lead:'triangle',filter:1500,chords:[[220,261.63,329.63],[196,246.94,293.66],[174.61,220,261.63],[196,246.94,329.63]],melody:[0,1,2,1,0]},
+  morning:{phrase:4.8,vol:.038,pad:'sine',lead:'sine',filter:1700,chords:[[261.63,329.63,392],[220,261.63,329.63],[246.94,293.66,369.99],[196,246.94,329.63]],melody:[0,2,1,2,0]},
+  work:{phrase:3.5,vol:.034,pad:'triangle',lead:'triangle',filter:1900,chords:[[220,261.63,329.63],[246.94,293.66,369.99],[196,246.94,329.63],[220,277.18,329.63]],melody:[0,1,2,1,2,0]},
+  rest:{phrase:5.2,vol:.035,pad:'sine',lead:'sine',filter:1300,chords:[[261.63,329.63,392],[293.66,349.23,440],[220,261.63,329.63],[246.94,329.63,392]],melody:[0,1,0,2,1]},
+  town:{phrase:3.25,vol:.034,pad:'triangle',lead:'triangle',filter:2100,chords:[[261.63,329.63,392],[293.66,369.99,440],[220,277.18,329.63],[246.94,311.13,392]],melody:[0,2,1,2,0,1]},
+  people:{phrase:4.4,vol:.036,pad:'sine',lead:'triangle',filter:1650,chords:[[261.63,329.63,392],[220,277.18,329.63],[174.61,220,261.63],[196,246.94,293.66]],melody:[0,1,2,2,1,0]},
+  loop:{phrase:4.1,vol:.032,pad:'sine',lead:'sawtooth',filter:920,chords:[[220,261.63,311.13],[207.65,246.94,293.66],[185,220,277.18],[196,233.08,293.66]],melody:[0,2,1,0,2]},
+  midnight:{phrase:4.0,vol:.030,pad:'sine',lead:'triangle',filter:760,chords:[[110,130.81,164.81],[98,123.47,146.83],[103.83,130.81,155.56],[92.5,116.54,146.83]],melody:[0,1,0,2,0]},
+  secret:{phrase:5.4,vol:.030,pad:'sine',lead:'sine',filter:2500,chords:[[261.63,392,523.25],[293.66,440,587.33],[246.94,369.99,493.88],[329.63,493.88,659.25]],melody:[2,1,2,0,2]},
+  final:{phrase:4.7,vol:.040,pad:'sine',lead:'triangle',filter:1800,chords:[[196,246.94,293.66],[220,261.63,329.63],[174.61,220,261.63],[261.63,329.63,392]],melody:[0,1,2,1,2,0]},
+  menu:{phrase:5.0,vol:.030,pad:'sine',lead:'triangle',filter:1350,chords:[[196,246.94,293.66],[174.61,220,261.63],[220,261.63,329.63],[196,246.94,329.63]],melody:[0,1,0,2]},
+  ending:{phrase:5.0,vol:.034,pad:'sine',lead:'triangle',filter:1600,chords:[[174.61,220,261.63],[196,246.94,293.66],[220,261.63,329.63],[261.63,329.63,392]],melody:[0,2,1,2,0]}
+};
 function ensureAudio(){
-  if(!audioCtx){
-    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    bgmMaster=audioCtx.createGain();
-    bgmMaster.gain.value=.055;
-    bgmMaster.connect(audioCtx.destination);
-  }
+  if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();bgmMaster=audioCtx.createGain();sfxMaster=audioCtx.createGain();bgmMaster.gain.value=.85;sfxMaster.gain.value=.75;bgmMaster.connect(audioCtx.destination);sfxMaster.connect(audioCtx.destination)}
   if(audioCtx.state==='suspended')audioCtx.resume();
 }
-function playTone(freq,start,dur,vol=.10,type='sine'){
-  if(!audioCtx||!bgmMaster)return;
-  const o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();
-  o.type=type;o.frequency.value=freq;f.type='lowpass';f.frequency.value=1800;
-  g.gain.setValueAtTime(0,start);
-  g.gain.linearRampToValueAtTime(vol,start+.08);
-  g.gain.exponentialRampToValueAtTime(.0001,start+dur);
-  o.connect(f);f.connect(g);g.connect(bgmMaster);
-  o.start(start);o.stop(start+dur+.03);
+function trackBgmNode(o){activeBgmNodes.add(o);o.onended=()=>activeBgmNodes.delete(o)}
+function playBgmTone(freq,start,dur,vol=.04,type='sine',filterFreq=1600,detune=0){
+  if(!audioCtx||!bgmMaster||!bgmOn)return;const o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();o.type=type;o.frequency.value=freq;o.detune.value=detune;f.type='lowpass';f.frequency.value=filterFreq;g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),start+.08);g.gain.exponentialRampToValueAtTime(.0001,start+dur);o.connect(f);f.connect(g);g.connect(bgmMaster);trackBgmNode(o);o.start(start);o.stop(start+dur+.04)
 }
+function stopActiveBgm(fade=.12){if(!audioCtx)return;const stopAt=audioCtx.currentTime+fade;activeBgmNodes.forEach(o=>{try{o.stop(stopAt)}catch(e){}});activeBgmNodes.clear()}
+function tinyTick(start,vol=.012){if(!audioCtx||!bgmOn)return;playBgmTone(1450,start,.055,vol,'triangle',2400);playBgmTone(720,start+.02,.07,vol*.65,'sine',1800)}
 function bgmPhrase(){
-  if(!bgmOn||!audioCtx)return;
-  const now=audioCtx.currentTime+.05;
-  const chord=bgmProgressions[bgmStep%bgmProgressions.length];
-  chord.forEach((f,i)=>playTone(f/2,now,4.5,.055,'sine'));
-  const notes=[chord[0],chord[1],chord[2],chord[1],chord[0]*2];
-  notes.forEach((f,i)=>playTone(f,now+i*.82,1.5,.045,i%2?'triangle':'sine'));
-  bgmStep++;
+  if(!bgmOn||!audioCtx)return;const t=BGM_THEMES[currentTheme]||BGM_THEMES.title,now=audioCtx.currentTime+.04,chord=t.chords[(bgmStep+currentSceneSeed)%t.chords.length],seedShift=(currentSceneSeed%5)-2;chord.forEach((f,i)=>playBgmTone(f/(currentTheme==='midnight'?1:2),now,t.phrase+.45,t.vol*(i===0?1:.78),t.pad,t.filter,seedShift*(i-1)*2));const gap=t.phrase/Math.max(t.melody.length,1);t.melody.forEach((idx,i)=>{const note=chord[(idx+currentSceneSeed)%chord.length]*(currentTheme==='secret'&&i%2?2:1);playBgmTone(note,now+i*gap,Math.min(1.45,gap*1.55),t.vol*.74,t.lead,t.filter+500,seedShift*3)});if(currentTheme==='work'||currentTheme==='town'){for(let i=0;i<4;i++)playBgmTone(chord[0]/2,now+i*(t.phrase/4),.16,t.vol*.38,'triangle',850)}if(currentTheme==='loop')playBgmTone(chord[1]/2,now+t.phrase*.48,1.55,t.vol*.42,'sawtooth',520,-8);if(currentTheme==='midnight'){tinyTick(now+.25,.010);tinyTick(now+t.phrase*.50+.25,.010)}if(currentTheme==='secret')playBgmTone(chord[2]*2,now+t.phrase*.58,1.9,t.vol*.27,'sine',3200,7);if(currentTheme==='final')playBgmTone(chord[2],now+t.phrase*.72,1.6,t.vol*.62,'triangle',2100,4);bgmStep++
 }
-function startBgm(){
-  if(!bgmOn)return;
-  ensureAudio();
-  if(!bgmTimer){bgmPhrase();bgmTimer=setInterval(bgmPhrase,4100)}
+function startBgm(){if(!bgmOn)return;ensureAudio();if(!bgmTimer){bgmPhrase();const t=BGM_THEMES[currentTheme]||BGM_THEMES.title;bgmTimer=setInterval(bgmPhrase,Math.round(t.phrase*1000))}}
+function stopBgm(){if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null}stopActiveBgm(.10)}
+function hashSceneKey(key){const s=String(key??'');let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h%17}
+function themeForScene(sceneKey,place=''){
+  const k=String(sceneKey??''),direct={title:'title',morning:'morning',work:'work',rest:'rest',town:'town',people:'people',loop:'loop',midnight:'midnight',secret:'secret',final:'final',menu:'menu'};if(direct[k])return direct[k];if(k.startsWith('work'))return 'work';if(k.startsWith('rest'))return 'rest';if(k.startsWith('town'))return 'town';if(k.startsWith('people'))return 'people';if(k.startsWith('loop'))return 'loop';if(k.startsWith('midnight'))return 'midnight';if(k.startsWith('secret'))return 'secret';if(k.startsWith('final'))return 'final';const n=Number(sceneKey);if(Number.isFinite(n)&&n>0){if([1,3,6,7,8,9,10].includes(n))return 'work';if(n===2||(n>=11&&n<=18))return 'rest';if(n===4||n===5||n===19||n===20||(n>=41&&n<=60))return 'town';if(n>=21&&n<=40)return 'people';if(n>=61&&n<=75)return 'loop';if(n>=76&&n<=85)return 'midnight';if(n>=86&&n<=95)return 'secret';if(n>=96&&n<=100)return 'final'}if(/0:|23:|深夜|止まった/.test(place))return 'midnight';return 'title'
 }
-function stopBgm(){
-  if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null}
-  if(bgmMaster&&audioCtx){
-    const t=audioCtx.currentTime;
-    bgmMaster.gain.cancelScheduledValues(t);
-    bgmMaster.gain.setTargetAtTime(.0001,t,.08);
-    setTimeout(()=>{if(bgmMaster&&bgmOn===false)bgmMaster.gain.value=.055},300);
-  }
+function setSceneBgm(sceneKey,place=''){
+  const theme=themeForScene(sceneKey,place),seed=hashSceneKey(sceneKey);if(currentTheme===theme&&currentSceneSeed===seed&&bgmTimer)return;currentTheme=theme;currentSceneSeed=seed;bgmStep=0;if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null}stopActiveBgm(.10);if(bgmOn&&audioCtx){const t=BGM_THEMES[currentTheme]||BGM_THEMES.title;bgmPhrase();bgmTimer=setInterval(bgmPhrase,Math.round(t.phrase*1000))}
 }
-function setBgm(on){
-  bgmOn=on;
-  try{localStorage.setItem('kyou_bgm_on',on?'1':'0')}catch(e){}
-  const b=document.getElementById('bgmToggle');
-  if(b)b.textContent=on?'♫ BGM ON':'♫ BGM OFF';
-  if(on){if(bgmMaster)bgmMaster.gain.value=.055;startBgm()}else stopBgm();
-}
-try{bgmOn=localStorage.getItem('kyou_bgm_on')!=='0'}catch(e){}
+function setEndingBgm(rarity,n){currentTheme='ending';currentSceneSeed=(Number(n)||0)+(String(rarity).length*3);bgmStep=0;if(bgmTimer){clearInterval(bgmTimer);bgmTimer=null}stopActiveBgm(.10);if(bgmOn&&audioCtx){bgmPhrase();bgmTimer=setInterval(bgmPhrase,5000)}}
+function setBgm(on){bgmOn=on;try{localStorage.setItem('kyou_bgm_on',on?'1':'0')}catch(e){}const b=document.getElementById('bgmToggle');if(b)b.textContent=on?'♫ BGM ON':'♫ BGM OFF';if(on)startBgm();else stopBgm()}
+function playSfxTone(freq0,freq1,dur,vol,type='sine'){if(!sfxOn)return;ensureAudio();const now=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();o.type=type;o.frequency.setValueAtTime(freq0,now);o.frequency.exponentialRampToValueAtTime(Math.max(20,freq1),now+dur);f.type='lowpass';f.frequency.value=2800;g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+.006);g.gain.exponentialRampToValueAtTime(.0001,now+dur);o.connect(f);f.connect(g);g.connect(sfxMaster);o.start(now);o.stop(now+dur+.02)}
+function playTapSfx(kind='tap'){if(!sfxOn)return;if(kind==='choice'){playSfxTone(720,470,.075,.055,'triangle');setTimeout(()=>playSfxTone(980,760,.045,.026,'sine'),28);return}if(kind==='primary'){playSfxTone(840,610,.07,.050,'triangle');setTimeout(()=>playSfxTone(1180,900,.055,.024,'sine'),32);return}if(kind==='close'){playSfxTone(520,390,.055,.035,'sine');return}playSfxTone(660,500,.055,.038,'triangle')}
+function setSfx(on){sfxOn=on;try{localStorage.setItem('kyou_sfx_on',on?'1':'0')}catch(e){}const b=document.getElementById('sfxToggle');if(b)b.textContent=on?'● SFX ON':'○ SFX OFF'}
+try{bgmOn=localStorage.getItem('kyou_bgm_on')!=='0';sfxOn=localStorage.getItem('kyou_sfx_on')!=='0'}catch(e){}
+
 
 const titleCount=document.getElementById('titleCount'),ccount=document.getElementById('ccount'),bar=document.getElementById('bar'),stime=document.getElementById('stime'),splace=document.getElementById('splace'),storybox=document.getElementById('storybox'),choices=document.getElementById('choices'),newEl=document.getElementById('new'),eno=document.getElementById('eno'),etitle=document.getElementById('etitle'),erarity=document.getElementById('erarity'),edesc=document.getElementById('edesc'),grid=document.getElementById('grid'),detail=document.getElementById('detail'),memlist=document.getElementById('memlist');
-const bgmToggle=document.getElementById('bgmToggle');
+const bgmToggle=document.getElementById('bgmToggle'),sfxToggle=document.getElementById('sfxToggle');
 const startBtn=document.getElementById('start'),collectionBtn=document.getElementById('collection'),memoryBtn=document.getElementById('memory'),profileBtn=document.getElementById('profile'),rankingBtn=document.getElementById('ranking'),creditsBtn=document.getElementById('credits'),creditsModal=document.getElementById('creditsModal'),creditsClose=document.getElementById('creditsClose'),resetBtn=document.getElementById('reset'),nextBtn=document.getElementById('next'),endCollectionBtn=document.getElementById('endCollection'),endTitleBtn=document.getElementById('endTitle'),back1Btn=document.getElementById('back1'),back2Btn=document.getElementById('back2'),changeNameBtn=document.getElementById('changeName'),backProfileBtn=document.getElementById('backProfile'),backRankingBtn=document.getElementById('backRanking'),savePlayerNameBtn=document.getElementById('savePlayerName'),cancelPlayerNameBtn=document.getElementById('cancelPlayerName'),playerNameInput=document.getElementById('playerNameInput');
 bgmToggle.textContent=bgmOn?'♫ BGM ON':'♫ BGM OFF';
+sfxToggle.textContent=sfxOn?'● SFX ON':'○ SFX OFF';
 bgmToggle.onclick=()=>setBgm(!bgmOn);
+sfxToggle.onclick=()=>setSfx(!sfxOn);
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button');if(!b||b.disabled)return;ensureAudio();if(bgmOn&&!bgmTimer)startBgm();const kind=b.closest('#choices')?'choice':b.classList.contains('primary')?'primary':(b.classList.contains('modalClose')||b.id==='creditsClose')?'close':'tap';playTapSfx(kind)},true);
 const closeCredits=()=>creditsModal.classList.add('hidden');
 startBtn.onclick=()=>{closeCredits();if(!player.name){openNameModal(false);return}startBgm();morning()};
 collectionBtn.onclick=()=>{closeCredits();returnTo='title';drawCollection();show('collect')};
