@@ -106,10 +106,60 @@
 .rankIntro{font-size:11px;line-height:1.7;color:var(--muted);margin:-4px 0 14px}.rankList{display:grid;gap:9px}.rankRow{display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;border:1px solid var(--line);border-radius:15px;padding:12px;background:var(--panel)}.rankRow.current{border-color:rgba(255,225,139,.42);background:linear-gradient(145deg,rgba(255,225,139,.08),rgba(255,255,255,.025))}.rankPos{font-size:18px;font-weight:900;text-align:center;color:#aeb9ca}.rankPos.top{color:#ffe18b}.rankName{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rankMeta{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5}.rankScore{text-align:right}.rankEnding{font-size:20px;font-weight:900}.rankEnding small{font-size:9px;color:var(--muted);font-weight:700}.rankEmpty{border:1px dashed var(--line);border-radius:14px;padding:24px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}
 .nameModal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(3,5,9,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.nameModal.hidden{display:none}.nameCard{width:min(100%,390px);border:1px solid rgba(255,255,255,.18);border-radius:20px;background:#111722;padding:22px;box-shadow:0 26px 80px rgba(0,0,0,.5)}.nameLogo{font-size:10px;color:#ffe18b;letter-spacing:.18em;font-weight:900}.nameTitle{font-size:22px;font-weight:900;margin:7px 0}.nameDesc{font-size:12px;line-height:1.7;color:var(--muted);margin-bottom:14px}.nameInput{width:100%;box-sizing:border-box;border:1px solid #465064;border-radius:13px;background:#0c111a;color:#fff;padding:14px;font:inherit;font-size:16px;outline:none}.nameInput:focus{border-color:#98a9c5;box-shadow:0 0 0 3px rgba(152,169,197,.10)}.nameError{min-height:20px;font-size:11px;color:#ff9c9c;padding-top:6px}.nameActions{display:flex;gap:8px;margin-top:8px}.nameActions .btn{margin:0}.profileNote{font-size:10px;line-height:1.7;color:var(--muted);margin-top:10px}
 @media(max-width:360px){.profileName{font-size:24px}.rankRow{grid-template-columns:34px 1fr auto;padding:10px}.rankEnding{font-size:17px}}
+
+
+/* v1.1 END hint + rarity reveal update */
+.cell:not(.got){position:relative;border-style:dashed;background:linear-gradient(145deg,#141922,#11151d)}
+.cell:not(.got) .hintMark{font-size:8px;letter-spacing:.12em;color:#748096;align-self:flex-end;margin-top:auto}
+.modalHintBox{margin-top:16px;border:1px solid #343d4d;background:rgba(12,16,23,.76);border-radius:14px;padding:14px 15px;line-height:1.75}
+.modalHintHead{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.18em;color:#9fb2d1;margin-bottom:8px}
+.modalHintHead::before{content:"";width:7px;height:7px;border-radius:50%;background:#8fa9d6;box-shadow:0 0 10px rgba(143,169,214,.7)}
+.modalHintRoute{font-size:14px;color:#eef2f8;margin-bottom:5px}
+.modalHintText{font-size:12px;color:#aeb7c7}
+.modalHintMemory{margin-top:10px;padding-top:10px;border-top:1px solid #2a3240;font-size:11px;color:#d2b8ff}
+.modalHintReady{color:#a8e5c1}
+.modalHintLocked{color:#d2b8ff}
+
+#end{position:relative;overflow:hidden}
+#end .endtitle,#end .rarity,#end .enddesc,#end .endno,#end .newbadge{position:relative;z-index:2}
+#end.reveal-r-rare .endtitle{color:#eaf0ff;text-shadow:0 0 18px rgba(112,149,255,.44)}
+#end.reveal-r-epic .endtitle{color:#f0ddff;text-shadow:0 0 22px rgba(183,112,255,.52)}
+#end.reveal-r-legend .endtitle{color:#fff0c8;text-shadow:0 0 24px rgba(255,194,84,.58)}
+#end.reveal-r-secret .endtitle{color:#ffd9ef;text-shadow:2px 0 rgba(255,66,157,.35),-2px 0 rgba(94,192,255,.25),0 0 28px rgba(255,79,172,.38)}
+#end.reveal-r-true-end .endtitle{color:#fff8d8;text-shadow:0 0 30px rgba(255,235,154,.72)}
+#end.reveal-r-epic::before,#end.reveal-r-legend::before,#end.reveal-r-secret::before,#end.reveal-r-true-end::before{content:"";position:absolute;inset:-30%;pointer-events:none;z-index:0;opacity:.22}
+#end.reveal-r-epic::before{background:radial-gradient(circle at 50% 42%,rgba(151,76,225,.50),transparent 43%)}
+#end.reveal-r-legend::before{background:radial-gradient(circle at 50% 40%,rgba(240,181,70,.48),transparent 45%)}
+#end.reveal-r-secret::before{background:repeating-linear-gradient(0deg,rgba(255,73,163,.08) 0 1px,transparent 1px 5px),radial-gradient(circle at 50% 40%,rgba(142,45,111,.45),transparent 47%)}
+#end.reveal-r-true-end::before{background:radial-gradient(circle at 50% 38%,rgba(255,244,183,.72),rgba(226,179,79,.15) 35%,transparent 58%)}
+
+.endingFx{position:fixed;inset:0;z-index:100;pointer-events:none;overflow:hidden;display:none}
+.endingFx.active{display:block}
+.endingFx .fxFlash{position:absolute;inset:0;opacity:0}
+.endingFx .fxRing{position:absolute;left:50%;top:45%;width:90px;height:90px;border:2px solid currentColor;border-radius:50%;transform:translate(-50%,-50%) scale(.2);opacity:0}
+.endingFx .fxWord{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.92);font-family:serif;font-weight:700;font-size:clamp(22px,7vw,42px);letter-spacing:.18em;white-space:nowrap;opacity:0;text-shadow:0 3px 24px rgba(0,0,0,.72)}
+.endingFx .fxParticle{position:absolute;width:4px;height:4px;border-radius:50%;background:currentColor;box-shadow:0 0 9px currentColor;opacity:0}
+.endingFx.fx-rare{color:#94b2ff}.endingFx.fx-rare .fxFlash{background:rgba(77,115,210,.20);animation:fxFlash .62s ease-out}.endingFx.fx-rare .fxRing{animation:fxRing .70s ease-out}.endingFx.fx-rare .fxWord{animation:fxWord .72s ease-out}
+.endingFx.fx-epic{color:#d09cff}.endingFx.fx-epic .fxFlash{background:radial-gradient(circle,rgba(162,84,231,.32),rgba(42,15,75,.14) 55%,transparent);animation:fxFlash .85s ease-out}.endingFx.fx-epic .fxRing{animation:fxRing .92s cubic-bezier(.2,.7,.2,1)}.endingFx.fx-epic .fxWord{animation:fxWord .95s ease-out}.endingFx.fx-epic .fxParticle{animation:fxParticle 1.0s ease-out}
+.endingFx.fx-legend{color:#ffd071}.endingFx.fx-legend .fxFlash{background:radial-gradient(circle,rgba(255,217,129,.48),rgba(127,78,14,.16) 50%,transparent);animation:fxFlash 1.05s ease-out}.endingFx.fx-legend .fxRing{border-width:3px;animation:fxRing 1.10s cubic-bezier(.15,.78,.2,1)}.endingFx.fx-legend .fxWord{animation:fxWord 1.12s ease-out}.endingFx.fx-legend .fxParticle{animation:fxParticle 1.25s ease-out}
+.endingFx.fx-secret{color:#ff83c5;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 5px)}.endingFx.fx-secret .fxFlash{background:linear-gradient(90deg,rgba(255,42,139,.15),rgba(75,170,255,.12),rgba(255,42,139,.15));animation:fxSecretFlash 1.15s steps(5,end)}.endingFx.fx-secret .fxRing{border-style:dashed;animation:fxSecretRing 1.15s steps(6,end)}.endingFx.fx-secret .fxWord{animation:fxSecretWord 1.18s steps(7,end)}.endingFx.fx-secret .fxParticle{animation:fxParticle 1.3s ease-out}
+.endingFx.fx-true-end{color:#fff0a4}.endingFx.fx-true-end .fxFlash{background:radial-gradient(circle at 50% 42%,rgba(255,255,236,.78),rgba(255,215,111,.30) 35%,rgba(255,255,255,.06) 62%,transparent);animation:fxTrueFlash 1.65s ease-out}.endingFx.fx-true-end .fxRing{width:120px;height:120px;border-width:3px;animation:fxTrueRing 1.6s ease-out}.endingFx.fx-true-end .fxWord{font-size:clamp(25px,8vw,48px);animation:fxTrueWord 1.65s ease-out}.endingFx.fx-true-end .fxParticle{width:5px;height:5px;animation:fxParticle 1.65s ease-out}
+@keyframes fxFlash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+@keyframes fxRing{0%{opacity:0;transform:translate(-50%,-50%) scale(.18)}25%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(5.6)}}
+@keyframes fxWord{0%{opacity:0;transform:translate(-50%,-50%) scale(.82);filter:blur(5px)}30%{opacity:1;filter:blur(0)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-56%) scale(1.04)}}
+@keyframes fxParticle{0%{opacity:0;transform:translate(0,0) scale(.3)}22%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+@keyframes fxSecretFlash{0%,100%{opacity:0}10%{opacity:.9;transform:translateX(-4px)}20%{opacity:.25;transform:translateX(5px)}35%{opacity:.65;transform:translateX(-2px)}55%{opacity:.18}68%{opacity:.55;transform:translateX(3px)}}
+@keyframes fxSecretRing{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(0)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(5) rotate(55deg)}}
+@keyframes fxSecretWord{0%{opacity:0}13%{opacity:1;transform:translate(-52%,-50%)}20%{transform:translate(-48%,-50%)}29%{opacity:.25}35%{opacity:1;transform:translate(-51%,-50%)}70%{opacity:.9}100%{opacity:0}}
+@keyframes fxTrueFlash{0%{opacity:0}18%{opacity:.95}56%{opacity:.48}100%{opacity:0}}
+@keyframes fxTrueRing{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(7)}}
+@keyframes fxTrueWord{0%{opacity:0;filter:blur(8px);transform:translate(-50%,-50%) scale(.7)}28%{opacity:1;filter:blur(0);transform:translate(-50%,-50%) scale(1)}72%{opacity:1}100%{opacity:0;transform:translate(-50%,-55%) scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.endingFx *{animation-duration:.01ms!important}.endingFx{display:none!important}}
+
 </style>
 </head>
 <body><button id="bgmToggle" type="button">♫ BGM ON</button><button id="sfxToggle" type="button">● SFX ON</button><main class="app">
-<section id="title" class="center"><div style="height:18vh;min-height:90px"></div><h1 class="title">今日が終わるまでに。</h1><div class="subtitle">CHOICE LOOP STORY</div><div id="titleCount" class="count"></div><div class="playerBadge">PLAYER <b id="titlePlayerName">未登録</b></div><div class="menu"><button class="btn primary" id="start">朝を迎える</button><button class="btn" id="collection">エンディング図鑑</button><button class="btn" id="memory">記憶</button><button class="btn" id="profile">プロフィール</button><button class="btn" id="ranking">ランキング</button><button class="btn" id="credits">CREDITS</button><button class="btn ghost" id="reset">セーブデータを初期化</button></div><div class="notice">v1.0｜SCENE MUSIC & TAP SFX UPDATE / Created by COPA GAMES</div><div class="copyright">© 2026 COPA GAMES</div><div id="creditsModal" class="creditsModal hidden" role="dialog" aria-modal="true"><div class="creditsCard"><button id="creditsClose" class="modalClose" type="button" aria-label="閉じる">×</button><div class="creditsLogo">今日が終わるまでに。</div><div class="creditsSub">CHOICE LOOP STORY</div><div class="creditsLine">Created by <b>COPA GAMES</b></div><div class="creditsLine small">Story / Game Design / Direction</div><div class="creditsLine">COPA GAMES</div><div class="creditsCopy">© 2026 COPA GAMES</div></div></div></section>
+<section id="title" class="center"><div style="height:18vh;min-height:90px"></div><h1 class="title">今日が終わるまでに。</h1><div class="subtitle">CHOICE LOOP STORY</div><div id="titleCount" class="count"></div><div class="playerBadge">PLAYER <b id="titlePlayerName">未登録</b></div><div class="menu"><button class="btn primary" id="start">朝を迎える</button><button class="btn" id="collection">エンディング図鑑</button><button class="btn" id="memory">記憶</button><button class="btn" id="profile">プロフィール</button><button class="btn" id="ranking">ランキング</button><button class="btn" id="credits">CREDITS</button><button class="btn ghost" id="reset">セーブデータを初期化</button></div><div class="notice">v1.1｜ENDING HINT & RARITY REVEAL UPDATE / Created by COPA GAMES</div><div class="copyright">© 2026 COPA GAMES</div><div id="creditsModal" class="creditsModal hidden" role="dialog" aria-modal="true"><div class="creditsCard"><button id="creditsClose" class="modalClose" type="button" aria-label="閉じる">×</button><div class="creditsLogo">今日が終わるまでに。</div><div class="creditsSub">CHOICE LOOP STORY</div><div class="creditsLine">Created by <b>COPA GAMES</b></div><div class="creditsLine small">Story / Game Design / Direction</div><div class="creditsLine">COPA GAMES</div><div class="creditsCopy">© 2026 COPA GAMES</div></div></div></section>
 <section id="story" class="hidden"><div class="topbar"><div id="stime" class="time"></div><div id="splace" class="place"></div></div><div id="storybox" class="story"></div><div id="choices" class="choices"></div></section>
 <section id="end" class="hidden endcard"><div id="new" class="newbadge hidden">NEW ENDING</div><div id="eno" class="endno"></div><div id="etitle" class="endtitle"></div><div id="erarity" class="rarity"></div><div id="edesc" class="enddesc"></div><div class="menu"><button class="btn primary" id="next">次の朝へ</button><button class="btn" id="endCollection">図鑑を見る</button><button class="btn ghost" id="endTitle">タイトルへ</button></div></section>
 <section id="collect" class="hidden"><div class="head"><h2>ENDING COLLECTION</h2><div id="ccount" class="count" style="margin:0"></div></div><div class="progress"><span id="bar"></span></div><div id="grid" class="grid"></div><div id="detail" class="detail small"></div><div id="collectionModal" class="collectionModal hidden" role="dialog" aria-modal="true"><div id="collectionModalCard" class="collectionModalCard"><button id="collectionModalClose" class="modalClose" type="button" aria-label="閉じる">×</button><div id="collectionModalBody"></div></div></div><div class="menu" style="margin-top:14px"><button class="btn ghost" id="back1">戻る</button></div></section>
@@ -136,14 +186,47 @@ function setSceneArt(key){
   el.style.setProperty('--scene-art',art);
   el.style.setProperty('--scene-art-opacity',art==='none'?'0':'1');
 }
+
+/* v1.1 unopened END hints */
+const ROUTE_HINT_COPY={
+  work:'朝の行動や通勤路に、まだ見ていない分岐がある。',
+  rest:'「今日は休む」を選んだ日の過ごし方を変えてみよう。',
+  town:'街では寄り道する場所によって、まったく別の一日になる。',
+  people:'誰と会うかだけでなく、その相手に何を伝えるかも重要。',
+  loop:'既視感を無視せず、前の周回で知ったことを試してみよう。',
+  midnight:'時計が23:59を指す頃まで、今日を終わらせないこと。',
+  secret:'普通に表示される選択肢だけが、すべてとは限らない。',
+  final:'彼女と最初の日の真相に近づく記憶を集めよう。'
+};
+function findHintPath(n){
+  const route=routes.find(r=>Array.isArray(r.ends)&&r.ends.includes(n));
+  let group=null;
+  if(route&&typeof ROUTE_STORIES!=='undefined'&&ROUTE_STORIES[route.id])group=ROUTE_STORIES[route.id].find(g=>Array.isArray(g.ends)&&g.ends.includes(n))||null;
+  return {route,group};
+}
+function endingHintInfo(n){
+  if(n===100){return {route:'最後の一日',group:'図鑑を埋める',text:'99個すべての結末を知ったあと、彼女との最後の選択へ。',memory:'最後の空白は、ほかの99個を知った者にだけ開く。',ready:state.got.length>=99};}
+  const p=findHintPath(n),req=(needs[n]||[]),missing=req.filter(x=>!has(x));
+  const routeName=p.route?p.route.label:'まだ知らない道';
+  const groupName=p.group?p.group.label:'';
+  let text=(p.route&&ROUTE_HINT_COPY[p.route.id])||'同じ一日でも、選び方を変えると別の結末に近づく。';
+  if(groupName)text+=' 「'+groupName+'」の場面を探してみよう。';
+  let memory='';
+  if(req.length){memory=missing.length?'この結末には、別の結末で得る「記憶」がまだ必要。':'必要な「記憶」は揃っている。前とは違う選択肢に注目。';}
+  else memory='特別な前提記憶は不要。この道の中で選択を変えてみよう。';
+  return {route:routeName,group:groupName,text,memory,ready:!missing.length};
+}
+
 function rarityClass(r){return 'r-'+String(r||'COMMON').toLowerCase().replace(/\s+/g,'-')}
 function closeCollectionModal(){document.getElementById('collectionModal').classList.add('hidden')}
 function openCollectionModal(n,got){
   const modal=document.getElementById('collectionModal');
   const card=document.getElementById('collectionModalCard');
   const body=document.getElementById('collectionModalBody');
-  if(!got){card.className='collectionModalCard';body.innerHTML='<div class="modalTitle" style="font-size:22px">まだ見ていないエンディングです。</div>';}
-  else{const e=endings[n],rc=rarityClass(e.rarity);card.className='collectionModalCard '+rc;body.innerHTML=`<div class="modalNo">END ${String(n).padStart(3,'0')}</div><div class="modalTitle">${e.title}</div><div class="modalRarity">${e.rarity}</div><div class="modalDesc">${e.desc}</div>`;}
+  if(!got){
+    const h=endingHintInfo(n);card.className='collectionModalCard';
+    body.innerHTML=`<div class="modalNo">END ${String(n).padStart(3,'0')}</div><div class="modalTitle" style="font-size:22px">？？？？？</div><div class="modalHintBox"><div class="modalHintHead">ENDING HINT</div><div class="modalHintRoute">手がかり：${h.route}</div><div class="modalHintText">${h.text}</div><div class="modalHintMemory ${h.ready?'modalHintReady':'modalHintLocked'}">${h.memory}</div></div>`;
+  }else{const e=endings[n],rc=rarityClass(e.rarity);card.className='collectionModalCard '+rc;body.innerHTML=`<div class="modalNo">END ${String(n).padStart(3,'0')}</div><div class="modalTitle">${e.title}</div><div class="modalRarity">${e.rarity}</div><div class="modalDesc">${e.desc}</div>`;}
   modal.classList.remove('hidden');
 }
 
@@ -452,8 +535,33 @@ function preEnding(r,n,group){
   storyScene(c.time,c.place,body,btns,n);
 }
 function nextTime(n){if(n>=76)return '23:59';if(n>=61)return '18:40';if(n>=41)return '16:20';if(n>=21)return '15:10';return '12:00'}
-function finish(n){const e=endings[n];const isNew=!has(n);if(isNew)state.got.push(n);state.got.sort((a,b)=>a-b);state.last=n;save();newEl.classList.toggle('hidden',!isNew);eno.textContent='END '+String(n).padStart(3,'0');etitle.textContent=e.title;erarity.textContent=e.rarity;edesc.textContent=e.desc;setEndingBgm(e.rarity,n);show('end')}
-function drawCollection(){grid.innerHTML='';closeCollectionModal();for(let n=1;n<=100;n++){const e=endings[n],got=has(n);const d=document.createElement('button');d.type='button';d.className='cell'+(got?' got '+rarityClass(e.rarity):'');d.innerHTML=`<span class="num">${String(n).padStart(3,'0')}</span><span class="name">${got?e.title:'？？？？？'}</span>`;d.addEventListener('click',()=>openCollectionModal(n,got));grid.appendChild(d)}updateCount()}
+
+/* v1.1 rarity-specific END reveal */
+let endingFxTimer=null;
+function endingRevealClass(rarity){return rarityClass(rarity)}
+function endingFxLabel(rarity){const m={RARE:'RARE END',EPIC:'EPIC END',LEGEND:'LEGEND END',SECRET:'SECRET END','TRUE END':'TRUE END'};return m[rarity]||''}
+function playEndingRevealSfx(rarity){
+  if(!sfxOn||rarity==='COMMON')return;
+  if(rarity==='RARE'){playSfxTone(620,880,.13,.045,'triangle');setTimeout(()=>playSfxTone(980,1180,.16,.035,'sine'),75);return;}
+  if(rarity==='EPIC'){playSfxTone(260,520,.24,.055,'sawtooth');setTimeout(()=>playSfxTone(660,990,.30,.050,'triangle'),85);setTimeout(()=>playSfxTone(1320,1760,.20,.030,'sine'),210);return;}
+  if(rarity==='LEGEND'){[392,523.25,659.25,783.99].forEach((f,i)=>setTimeout(()=>playSfxTone(f,f*1.02,.28,.045-i*.004,'triangle'),i*90));return;}
+  if(rarity==='SECRET'){playSfxTone(150,54,.45,.060,'sawtooth');setTimeout(()=>playSfxTone(1620,310,.20,.040,'square'),95);setTimeout(()=>playSfxTone(760,1180,.18,.032,'triangle'),260);return;}
+  if(rarity==='TRUE END'){[261.63,329.63,392,523.25,659.25].forEach((f,i)=>setTimeout(()=>playSfxTone(f,f*1.01,.42,.045,'sine'),i*105));setTimeout(()=>playSfxTone(1046.5,1568,.55,.034,'triangle'),460);}
+}
+function triggerEndingReveal(rarity,n,isNew){
+  const end=document.getElementById('end');['r-common','r-rare','r-epic','r-legend','r-secret','r-true-end'].forEach(c=>end.classList.remove('reveal-'+c));end.classList.add('reveal-'+endingRevealClass(rarity));
+  if(!isNew||rarity==='COMMON')return;
+  let fx=document.getElementById('endingFx');if(!fx){fx=document.createElement('div');fx.id='endingFx';fx.className='endingFx';fx.innerHTML='<div class="fxFlash"></div><div class="fxRing"></div><div class="fxWord"></div>';document.body.appendChild(fx)}
+  if(endingFxTimer){clearTimeout(endingFxTimer);endingFxTimer=null}fx.querySelectorAll('.fxParticle').forEach(x=>x.remove());
+  const cls=endingRevealClass(rarity);fx.className='endingFx active fx-'+cls.replace(/^r-/,'');fx.querySelector('.fxWord').textContent=endingFxLabel(rarity);
+  const particleCount=rarity==='RARE'?0:rarity==='EPIC'?10:rarity==='LEGEND'?16:rarity==='SECRET'?13:20;
+  for(let i=0;i<particleCount;i++){const p=document.createElement('i');p.className='fxParticle';const a=(Math.PI*2*i/particleCount)+(n%7)*.13,dist=80+(i%5)*28;p.style.left=(48+(i%4)*1.4)+'%';p.style.top=(43+(i%3)*1.2)+'%';p.style.setProperty('--dx',(Math.cos(a)*dist).toFixed(1)+'px');p.style.setProperty('--dy',(Math.sin(a)*dist).toFixed(1)+'px');p.style.animationDelay=(i%4)*.025+'s';fx.appendChild(p)}
+  playEndingRevealSfx(rarity);
+  const dur=rarity==='RARE'?760:rarity==='EPIC'?1020:rarity==='LEGEND'?1280:rarity==='SECRET'?1350:1750;endingFxTimer=setTimeout(()=>{fx.classList.remove('active');endingFxTimer=null},dur);
+}
+
+function finish(n){const e=endings[n];const isNew=!has(n);if(isNew)state.got.push(n);state.got.sort((a,b)=>a-b);state.last=n;save();newEl.classList.toggle('hidden',!isNew);eno.textContent='END '+String(n).padStart(3,'0');etitle.textContent=e.title;erarity.textContent=e.rarity;edesc.textContent=e.desc;setEndingBgm(e.rarity,n);show('end');triggerEndingReveal(e.rarity,n,isNew)}
+function drawCollection(){grid.innerHTML='';closeCollectionModal();for(let n=1;n<=100;n++){const e=endings[n],got=has(n);const d=document.createElement('button');d.type='button';d.className='cell'+(got?' got '+rarityClass(e.rarity):'');d.innerHTML=`<span class="num">${String(n).padStart(3,'0')}</span><span class="name">${got?e.title:'？？？？？'}</span>${got?'':'<span class="hintMark">HINT</span>'}`;d.addEventListener('click',()=>openCollectionModal(n,got));grid.appendChild(d)}updateCount()}
 function drawMemory(){
   const msgs=[];const n=state.got.length;
   msgs.push(['周回','この朝を '+state.runs+' 回迎えている。']);
